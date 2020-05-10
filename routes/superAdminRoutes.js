@@ -61,9 +61,10 @@ router.post('/addFranchiseAdmin',(req,res)=>{
         lname : req.body.lname,
         email : req.body.email,
         password : req.body.password,
-        role : "Franchise Admin",
-        address : req.body.address,
-        contact : req.body.contact
+        role: req.body.role,
+        contact: [{
+            whatsApp: req.body.whatsApp
+        }]
     })
 
     User.find({'email': req.body.email}).count((err,num)=>{
@@ -109,14 +110,12 @@ router.post('/addFranchiseAdmin',(req,res)=>{
 });
 
 
-
-
 /** Edit Franchise ROUTE
  * uri: /superAdmin/editFranchise/:pincode
  * purpose: used to edit existing franchise.
  */
 
-router.post('/editFranchise/:pincode', (req, res) => {
+/*router.post('/editFranchise/:pincode', (req, res) => {
     
     Franchise.count({ pinCode: req.params.pincode }).then((cnt) => {
         if (cnt > 0) {
@@ -132,6 +131,21 @@ router.post('/editFranchise/:pincode', (req, res) => {
 
     });
 
+ });*/
+
+
+ router.post('/editFranchise/:Id', (req, res) => {
+    Franchise.findById({ _id: req.params.Id }).then((franchiseDoc) => {
+        if (franchiseDoc) {
+            Franchise.findByIdAndUpdate({ _id: req.params.Id }, { $set: req.body }).then((franchiseDoc) => {
+                res.send({ success: true, message: 'Franchise Details updated successfully.' });
+            }).catch((err) => {
+                console.log(err);
+            })
+        }
+    }).catch((err) => {
+        console.log(err);
+    });
  });
 
 
@@ -210,6 +224,33 @@ router.get('/franchise/fetch/:Id', (req, res) => {
     });
 });
 
+
+router.post('/editFranchiseAdmin/:Id', (req, res) => {
+    User.findByIdAndUpdate({ _id: req.params.Id }, { $set: req.body }).then((adminDoc) => {
+        res.send({
+            success: true,
+            message: 'Updated successfully'
+        });
+    }).catch((err) => {
+        console.log(err);
+    })
+});
+
+router.get('/franchiseAdmin/fetch/all', (req, res) => {
+    User.find({ role: 'franchiseAdmin' }).then((adminDocs) => {
+        res.send(adminDocs);
+    }).catch((err) => {
+        console.log(err);
+    })
+});
+
+router.get('/franchiseAdmin/fetch/:Id', (req, res) => {
+    User.findById({ _id: req.params.Id }).then((adminDoc) => {
+        res.send(adminDoc);
+    }).catch((err) => {
+        console.log(err);
+    })
+});
 
 
 module.exports = router;

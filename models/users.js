@@ -23,34 +23,42 @@ const User = mongoose.model('Users',{
 },
     address: [{
         careOf: {
-            type: String
+            type: String,
+            default: null
         },
         doorNo: {
             type: String,
-            required: true
+            required: true,
+            default: null
         },
         addressLine1: {
             type: String,
-            required: true
+            required: true,
+            default: null
         },
         addressLine2: {
-            type: String
+            type: String,
+            default: null
         },
         city: {
             type: String,
-            required: true
+            required: true,
+            default: null
         },
         district: {
             type: String,
-            required:true
+            required:true,
+            default: null
         },
         pinCode: {
             type: Number,
-            required: true
+            required: true,
+            default: null
         },
         country: {
             type: String,
-            required: true
+            required: true,
+            default: null
         }
     }],
     contact: [{
@@ -59,7 +67,8 @@ const User = mongoose.model('Users',{
             required: true
         },
         mobile: {
-            type: Number
+            type: Number,
+            default: null
         }
     }]
     
