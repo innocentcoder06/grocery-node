@@ -5,6 +5,7 @@ var router = express.Router();
 const {User} = require('../models/users');
 const {Inventory} = require('../models/inventory');
 const {Vendor}= require('../models/vendor');
+const inventory = require('../models/inventory');
 
 
 
@@ -206,6 +207,91 @@ router.post('/editVendor/:id', (req, res) => {
 //  })
 
 
+
+router.post('/getInventory', (req, res) => {
+    const vendorId = req.body.vendorId;
+    async function query() {
+        const vendorDoc = await Vendor.findOne({ vendorId: vendorId });
+        Inventory.findOne({ vendorId:vendorId }).then((inventoryDoc) => {
+            if (inventoryDoc) {
+                res.send({
+                    success: true,
+                    doc: inventoryDoc
+                });
+            } else {
+                if (vendorDoc) {
+                    const storeName = vendorDoc.storeName;
+                    const newInventory = new Inventory({
+                        vendorId,
+                        storeName
+                    });
+                    newInventory.save();
+                    res.send({
+                        success: false,
+                        message: 'new Inventory Created Successfully'
+                    });
+                }
+            }
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+    query();
+});
+
+router.post('/inventory/:inventoryId/product/new', (req, res) => {
+    const productName = req.body.productName;
+    const productCategory = req.body.productCategory;
+    const unit = req.body.unit;
+    const quantity = req.body.quantity;
+    const stockCnt = req.body.stockCnt;
+    const MRP = req.body.MRP;
+    const Product = new Object({
+        productName,
+        productCategory,
+        unit,
+        quantity,
+        stockCnt,
+        MRP
+    });
+    async function query () {
+        await Inventory.findByIdAndUpdate({ _id: req.params.inventoryId }, { $push: { products: Product } });
+        res.send({
+            success: true,
+            message: 'Product Added Successfully'
+        });
+    }
+    query();
+});
+
+router.post('/inventory/:inventoryId/product/:productId/edit', (req, res) => {
+    Inventory.updateOne({ 'products._id': req.params.productId }, { $set: {
+        'products.$.productName': req.body.productName,
+        'products.$.productCategory': req.body.productCategory,
+        'products.$.unit': req.body.unit,
+        'products.$.quantity': req.body.quantity,
+        'products.$.stockCnt': req.body.stockCnt,
+        'products.$.MRP': req.body.MRP
+    } }).then((inventoryDoc) => {
+        res.send({
+            success: true,
+            message: 'inventory updated Successfully'
+        });
+    }).catch((err) => {
+        console.log(err);
+    });
+});
+
+router.delete('/inventory/:inventoryId/product/:productId/delete', (req, res) => {
+    Inventory.updateOne({ _id: req.params.inventoryId }, { $pull: { products: { _id: req.params.productId } } }).then((inventoryDoc) => {
+        res.send({
+            success: true,
+            message: 'product removed successfully'
+        });
+    }).catch((err) => {
+        console.log(err);
+    })
+});
 
  
 module.exports=router;

@@ -18,7 +18,8 @@ const Inventory = mongoose.model('Inventory',{
     products: [{
         productId: {
             type: String, // autoGen by Us.
-            required: true
+            required: true,
+            default: 'Prod - 100'
         },
         productName: {
             type: String,
